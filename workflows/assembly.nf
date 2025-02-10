@@ -3,10 +3,12 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+include { AMRFINDERPLUS_RUN          } from '../modules/nf-core/amrfinderplus/run/main'
 include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 include { FASTP                  } from '../modules/nf-core/fastp/main'
 include { SHOVILL                } from '../modules/nf-core/shovill/main'
 include { QUAST                  } from '../modules/nf-core/quast/main'
+include { BBMAP_ALIGN            } from '../modules/nf-core/bbmap/align/main'
 include { MLST                   } from '../modules/nf-core/mlst/main'
 include { RMLST                  } from '../modules/local/rmlst/main'
 include { KLEBORATE              } from '../modules/nf-core/kleborate/main'
@@ -26,6 +28,7 @@ workflow ASSEMBLY {
     main:
 
     ch_versions = Channel.empty()
+
     //
     // MODULE: Run FastQC
     //
@@ -67,6 +70,16 @@ workflow ASSEMBLY {
     ch_versions = ch_versions.mix(QUAST.out.versions.first())
 
     //
+    // MODULE: Run BBMap aligner (calculate coverage)
+    //
+    BBMAP_ALIGN (
+        ch_trimmed,
+        ch_assembly
+    )
+    ch_bbmap = BBMAP_ALIGN.out // Outputs BBMap results
+    ch_versions = ch_versions.mix(BBMAP_ALIGN.out.versions.first())
+
+    //
     // MODULE: Run MLST (Multi Locus Sequence Typing)
     //
     MLST (
@@ -92,7 +105,17 @@ workflow ASSEMBLY {
         ch_assembly
     )
     ch_kleborate = KLEBORATE.out.txt // Outputs Kleborate results
-    //ch_versions = ch_versions.mix(KLEBORATE.out.versions.first())
+    ch_versions = ch_versions.mix(KLEBORATE.out.versions.first())
+
+    //
+    // MODULE AMRFINDERPLUS (Run AMRFinderPlus)
+    //
+    AMRFINDERPLUS_RUN (
+        ch_assembly,
+        ch_rmlst
+    )
+    ch_amrfinderplus = AMRFINDERPLUS_RUN.out // Outputs AMRFinderPlus results
+    ch_versions = ch_versions.mix(AMRFINDERPLUS_RUN.out.versions.first())
 
     //
     // Collate and save software versions

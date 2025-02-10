@@ -13,7 +13,7 @@ process KLEBORATE {
 
     output:
     tuple val(meta), path("*/*.txt"), emit: txt
-    //path "versions.yml"           , emit: versions
+    path "*/versions.yml"           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -25,23 +25,23 @@ process KLEBORATE {
     """
     species_content=\$(cat $species)
     echo "Species file content: \$species_content"
-    
+
     if [[ "\$species_content" == *"Klebsiella"* ]]; then
         kleborate \\
         $args \\
         --outdir 7_kleborate \\
         --assemblies $fastas
 
-        #cat <<END_VERSIONS > versions.yml
-        #"${task.process}":
-        #    kleborate: \$(kleborate --version | sed 's/Kleborate v//;')
-        #END_VERSIONS
     else
         echo "Skipping Kleborate..."
-        #touch skip_marker.txt  // Optional: create a file to mark the process as skipped
         mkdir -p 7_kleborate
         echo "Kleborate skipped for \$species_content" > 7_kleborate/kleborate_skipped.txt
-    fi  
+    fi
+
+    kleborate_version=\$(kleborate --version 2>&1 | grep "Kleborate v" | sed 's/Kleborate v//;')
+    echo "Kleborate version: \$kleborate_version"
+    echo '"'"${task.process}"'":' > 7_kleborate/versions.yml
+    echo "    kleborate: \$kleborate_version" >> 7_kleborate/versions.yml
     """
 
     stub:
@@ -49,9 +49,9 @@ process KLEBORATE {
     """
     touch ${prefix}.results.txt
 
-    #cat <<END_VERSIONS > versions.yml
-    #"${task.process}":
-    #    kleborate: \$(kleborate --version | sed 's/Kleborate v//;')
-    #END_VERSIONS
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        kleborate: \$(kleborate --version 2>&1 | sed 's/Kleborate v//;')
+    END_VERSIONS
     """
 }
