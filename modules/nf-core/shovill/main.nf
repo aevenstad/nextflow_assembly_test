@@ -1,4 +1,5 @@
 process SHOVILL {
+    publishDir "${params.outdir}/${meta.id}/3_shovill", mode: 'copy'
     tag "$meta.id"
     label 'process_medium'
 
@@ -11,11 +12,11 @@ process SHOVILL {
     tuple val(meta), path(reads)
 
     output:
-    tuple val(meta), path("${meta.id}/contigs.fa")                         , emit: contigs
-    tuple val(meta), path("${meta.id}/shovill.corrections")                , emit: corrections
-    tuple val(meta), path("${meta.id}/shovill.log")                        , emit: log
-    tuple val(meta), path("${meta.id}/{skesa,spades,megahit,velvet}.fasta"), emit: raw_contigs
-    tuple val(meta), path("${meta.id}/contigs.{fastg,gfa,LastGraph}")      , optional:true, emit: gfa
+    tuple val(meta), path("contigs.fa")                         , emit: contigs
+    tuple val(meta), path("shovill.corrections")                , emit: corrections
+    tuple val(meta), path("shovill.log")                        , emit: log
+    tuple val(meta), path("{skesa,spades,megahit,velvet}.fasta"), emit: raw_contigs
+    tuple val(meta), path("contigs.{fastg,gfa,LastGraph}")      , optional:true, emit: gfa
     path "versions.yml"                                         , emit: versions
 
     when:
@@ -34,7 +35,7 @@ process SHOVILL {
         --mincov 2 \\
         --cpus $task.cpus \\
         --ram $memory \\
-        --outdir ./${prefix} \\
+        --outdir ./ \\
         --force
 
     cat <<-END_VERSIONS > versions.yml

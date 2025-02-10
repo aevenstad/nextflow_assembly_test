@@ -1,4 +1,5 @@
 process MLST {
+    publishDir "${params.outdir}/${meta.id}/5_mlst", mode: 'copy'
     tag "$meta.id"
     label 'process_low'
 

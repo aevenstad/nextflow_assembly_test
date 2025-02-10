@@ -15,6 +15,11 @@
             "git_sha": "dc94b6ee04a05ddb9f7ae050712ff30a13149164",
             "installed_by": ["modules"]
           },
+          "kleborate": {
+            "branch": "master",
+            "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
+            "installed_by": ["modules"]
+          },
           "mlst": {
             "branch": "master",
             "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",

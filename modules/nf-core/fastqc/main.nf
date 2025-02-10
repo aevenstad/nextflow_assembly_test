@@ -1,4 +1,5 @@
 process FASTQC {
+    publishDir "${params.outdir}/${meta.id}/1_fastqc", mode: 'copy'
     tag "$meta.id"
     label 'process_medium'
 

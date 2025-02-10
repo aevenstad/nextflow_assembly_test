@@ -9,6 +9,7 @@ include { SHOVILL                } from '../modules/nf-core/shovill/main'
 include { QUAST                  } from '../modules/nf-core/quast/main'
 include { MLST                   } from '../modules/nf-core/mlst/main'
 include { RMLST                  } from '../modules/local/rmlst/main'
+include { KLEBORATE              } from '../modules/nf-core/kleborate/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 
@@ -48,7 +49,7 @@ workflow ASSEMBLY {
     ch_versions = ch_versions.mix(FASTP.out.versions.first())
 
     //
-    // MODULE: Run Shovi (Assembly)
+    // MODULE: Run Shovill (Assembly)
     //
     SHOVILL (
         ch_trimmed,
@@ -80,7 +81,18 @@ workflow ASSEMBLY {
     RMLST (
         ch_assembly
     )
-    ch_rmlst = RMLST.out.txt // Outputs rMLST results
+    ch_rmlst = RMLST.out.species // Outputs rMLST results
+
+    //
+    // MODULE KLEBORATE (Run Kleborate for Klebsiella)
+    // Only run Kleborate fot Klebsiella assemblies identified through rMLST
+    //
+    KLEBORATE (
+        ch_rmlst,
+        ch_assembly
+    )
+    ch_kleborate = KLEBORATE.out.txt // Outputs Kleborate results
+    //ch_versions = ch_versions.mix(KLEBORATE.out.versions.first())
 
     //
     // Collate and save software versions
