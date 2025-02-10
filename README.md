@@ -10,10 +10,10 @@ Bioinformatics pipeline to assemble bacterial genomes from raw Illumina data and
 - quast
 - MLST
 - rMLST
+- Kleborate
 
 ### To-do:
 - AMRFinderPlus
-- Kleborate
 - LREFinder
 - PlasmidFinder
 
