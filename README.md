@@ -11,11 +11,13 @@ Bioinformatics pipeline to assemble bacterial genomes from raw Illumina data and
 - MLST
 - rMLST
 - Kleborate
+- BBMap align
+- AMRFinderPlus
 
 ### To-do:
-- AMRFinderPlus
 - LREFinder
 - PlasmidFinder
+- Report
 
 
 ## Usage
