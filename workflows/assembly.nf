@@ -3,15 +3,19 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { AMRFINDERPLUS_RUN          } from '../modules/nf-core/amrfinderplus/run/main'
-include { FASTQC                 } from '../modules/nf-core/fastqc/main'
-include { FASTP                  } from '../modules/nf-core/fastp/main'
-include { SHOVILL                } from '../modules/nf-core/shovill/main'
-include { QUAST                  } from '../modules/nf-core/quast/main'
+include { AMRFINDERPLUS_RUN      } from '../modules/nf-core/amrfinderplus/run/main'
 include { BBMAP_ALIGN            } from '../modules/nf-core/bbmap/align/main'
-include { MLST                   } from '../modules/nf-core/mlst/main'
-include { RMLST                  } from '../modules/local/rmlst/main'
+include { FASTP                  } from '../modules/nf-core/fastp/main'
+include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 include { KLEBORATE              } from '../modules/nf-core/kleborate/main'
+include { LRE_FINDER             } from '../modules/local/lre-finder/main'
+include { MLST                   } from '../modules/nf-core/mlst/main'
+include { PLASMIDFINDER          } from '../modules/nf-core/plasmidfinder/main'
+include { QUAST                  } from '../modules/nf-core/quast/main'
+include { RMLST                  } from '../modules/local/rmlst/main'
+include { SHOVILL                } from '../modules/nf-core/shovill/main'
+
+
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 
@@ -116,6 +120,25 @@ workflow ASSEMBLY {
     )
     ch_amrfinderplus = AMRFINDERPLUS_RUN.out // Outputs AMRFinderPlus results
     ch_versions = ch_versions.mix(AMRFINDERPLUS_RUN.out.versions.first())
+
+
+    //
+    // MODULE PLASMIDFINDER (Run PlasmidFinder)
+    //
+    PLASMIDFINDER (
+        ch_assembly
+    )
+    ch_plasmidfinder = PLASMIDFINDER.out.txt // Outputs PlasmidFinder results
+    ch_versions = ch_versions.mix(PLASMIDFINDER.out.versions.first())
+
+    //
+    // MODULE LRE-FINDER (Run LRE-Finder)
+    //
+    LRE_FINDER (
+        ch_rmlst,
+        ch_trimmed
+    )
+    ch_lre_finder = LRE_FINDER.out.txt // Outputs LRE-Finder results
 
     //
     // Collate and save software versions
