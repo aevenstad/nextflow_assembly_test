@@ -1,7 +1,7 @@
 # bacterial genome assembly
 
 ## Introduction
-Bioinformatics pipeline to assemble bacterial genomes from raw Illumina data and perform antimicrobial resistance screening.
+Bioinformatics pipeline to assemble bacterial genomes from raw Illumina data and perform antimicrobial resistance screening.  
 Set up using `nf-core tools` and the pipeline is currently using a `nf-core` template. 
 
 ### Completed steps:

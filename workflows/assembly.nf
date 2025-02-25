@@ -14,6 +14,7 @@ include { PLASMIDFINDER          } from '../modules/nf-core/plasmidfinder/main'
 include { QUAST                  } from '../modules/nf-core/quast/main'
 include { RMLST                  } from '../modules/local/rmlst/main'
 include { SHOVILL                } from '../modules/nf-core/shovill/main'
+include { SKESA                  } from '../modules/local/skesa/main'
 
 
 include { paramsSummaryMap       } from 'plugin/nf-schema'
@@ -56,13 +57,17 @@ workflow ASSEMBLY {
     ch_versions = ch_versions.mix(FASTP.out.versions.first())
 
     //
-    // MODULE: Run Shovill (Assembly)
+    // MODULE: Run Assembly (Shovill or SKESA)
     //
-    SHOVILL (
-        ch_trimmed,
-    )
-    ch_assembly = SHOVILL.out.contigs // Outputs assembled contigs
-    ch_versions = ch_versions.mix(SHOVILL.out.versions.first())
+    def ch_assembly
+
+    if (params.assembler == 'shovill') {
+        ch_assembly = SHOVILL(ch_trimmed).contigs
+    } else if (params.assembler == 'skesa') {
+        ch_assembly = SKESA(ch_trimmed).contigs
+    } else {
+        exit 1, "Unsupported assembler: ${params.assembler}"
+    }
 
     //
     // MODULE: Run Quast (Assembly Evaluation)
